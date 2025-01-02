@@ -22,23 +22,43 @@ class ViewPasswordView extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(password.title)),
+      appBar: AppBar(
+        title: Text(password.title),
+        backgroundColor: Colors.teal,
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Decrypted Password:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          child: Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Decrypted Password:',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    decryptedPassword,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              Text(
-                decryptedPassword,
-                style: const TextStyle(fontSize: 18),
-              ),
-            ],
+            ),
           ),
         ),
       ),
