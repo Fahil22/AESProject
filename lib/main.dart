@@ -22,13 +22,28 @@ void main() async {
 /// Request storage permissions based on the Android version
 
 Future<void> requestPermissions() async {
-  if (await Permission.storage.request().isGranted) {
-    print("Storage permission granted");
-  } else if (await Permission.manageExternalStorage.request().isGranted) {
+  if (await Permission.manageExternalStorage.request().isGranted) {
     print("Manage external storage permission granted");
+  } else if (await Permission.storage.request().isGranted) {
+    print("Storage permission granted");
   } else {
     print("Storage permission denied");
-    await openAppSettings();
+    // Show dialog to explain why permissions are needed
+    Get.dialog(
+      AlertDialog(
+        title: Text('Storage Permission Required'),
+        content: Text('This app needs storage access to save your encrypted passwords securely.'),
+        actions: [
+          TextButton(
+            child: Text('Open Settings'),
+            onPressed: () {
+              Get.back();
+              openAppSettings();
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
 

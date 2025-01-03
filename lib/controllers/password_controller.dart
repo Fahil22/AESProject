@@ -73,7 +73,7 @@ class PasswordController extends GetxController {
       final jsonList = passwords.map((p) => p.toJson()).toList();
       final jsonString = jsonEncode(jsonList);
 
-      await _externalStorageHandler.saveToFile(jsonString);
+      await _externalStorageHandler.saveFile('passwords.txt', jsonString);
     } catch (e) {
       print('Error writing to external file: $e');
     }

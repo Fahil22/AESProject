@@ -1,47 +1,73 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class ExternalStorageHandler {
-  /// Returns a File handle in external storage: /Android/data/<package>/files/passwords.txt
-  Future<File> _getFile() async {
-    // Request permission if needed
-    if (await _requestStoragePermission()) {
-      final directory = await getExternalStorageDirectory();
-      if (directory != null) {
-        final filePath = '${directory.path}/passwords.txt';
-        return File(filePath);
+  Future<bool> _requestPermissions() async {
+    if (Platform.isAndroid) {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      
+      if (androidInfo.version.sdkInt >= 33) {
+        // For Android 13+ (API 33+)
+        final permissions = await Future.wait([
+          Permission.photos.request(),
+          Permission.videos.request(),
+          Permission.audio.request(),
+        ]);
+        
+        return permissions.every((status) => status.isGranted);
       } else {
-        throw 'External storage directory not available';
+        // For older Android versions
+        final status = await Permission.storage.request();
+        return status.isGranted;
       }
-    } else {
-      throw 'Storage permission denied';
     }
+    return true; // For non-Android platforms
   }
 
-  /// Explicitly request storage permission
-  Future<bool> _requestStoragePermission() async {
-    final status = await Permission.storage.status;
-    if (!status.isGranted) {
-      final result = await Permission.storage.request();
-      return result.isGranted;
+  Future<String> getStoragePath() async {
+    if (!await _requestPermissions()) {
+      throw 'Storage permissions not granted';
     }
-    return true; // already granted
+
+    final directory = await getApplicationDocumentsDirectory();
+    // Create a specific folder for your app data
+    final appFolder = Directory('${directory.path}/aesproject');
+    
+    if (!await appFolder.exists()) {
+      await appFolder.create(recursive: true);
+    }
+    
+    return appFolder.path;
   }
 
-  /// Overwrite the file with [data]
-  Future<void> saveToFile(String data) async {
-    final file = await _getFile();
-    await file.writeAsString(data, mode: FileMode.write);
+  Future<File> createFile(String fileName) async {
+    final path = await getStoragePath();
+    return File('$path/$fileName');
   }
 
-  /// Read data from file
-  Future<String> readFromFile() async {
+  Future<bool> saveFile(String fileName, String content) async {
     try {
-      final file = await _getFile();
-      return await file.readAsString();
+      final file = await createFile(fileName);
+      await file.writeAsString(content);
+      return true;
     } catch (e) {
-      return 'error';
+      print('Error saving file: $e');
+      return false;
+    }
+  }
+
+  Future<String?> readFile(String fileName) async {
+    try {
+      final file = await createFile(fileName);
+      if (await file.exists()) {
+        return await file.readAsString();
+      }
+      return null;
+    } catch (e) {
+      print('Error reading file: $e');
+      return null;
     }
   }
 }
