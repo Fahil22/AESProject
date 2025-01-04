@@ -1,3 +1,4 @@
+import 'package:aesproject/controllers/database_helper.dart';
 import 'package:aesproject/views/EditPasswordView.dart';
 import 'package:aesproject/views/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +11,12 @@ import 'views/home_view.dart';
 import 'views/add_password_view.dart';
 import 'views/view_password_view.dart';
 SharedPreferences ? prefs;
+  final dbHelper = DatabaseHelper.instance;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // await dbHelper.flushDatabase();
 
   // Initialize GetStorage
   await GetStorage.init();

@@ -1,3 +1,4 @@
+import 'package:aesproject/controllers/database_helper.dart';
 import 'package:aesproject/main.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,7 +7,7 @@ import '../controllers/password_controller.dart';
 
 class HomeView extends StatelessWidget {
   final PasswordController _controller = Get.put(PasswordController());
-
+DatabaseHelper dbHelper = DatabaseHelper.instance;
   HomeView({Key? key}) : super(key: key);
 
   @override
@@ -53,7 +54,11 @@ class HomeView extends StatelessWidget {
                   passwordItem.title,
                   style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
-                onTap: () => Get.toNamed('/view_password', arguments: passwordItem),
+                // onTap: () => Get.toNamed('/view_password', arguments: passwordItem),
+                onTap: () {
+                  Get.toNamed('/view_password', arguments: passwordItem);
+                   dbHelper.showAllTablesAndRecords();
+                },
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

@@ -13,11 +13,12 @@ class LoginScreen extends StatelessWidget {
     final username = _usernameController.text;
     final password = _passwordController.text;
 
+    
     final user = await DatabaseHelper.instance.getUser(username, password);
 
     if (user != null) {
       // Store user ID in Shared Preferences
-       prefs!.setInt('userId', user['id']);
+      prefs!.setInt('userId', user['id']);
 
       // Navigate to the home view
       Get.offAllNamed('/');
@@ -30,13 +31,11 @@ class LoginScreen extends StatelessWidget {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-        backgroundColor: Colors.teal,
-      ),
+      appBar: AppBar(title: const Text('Login'), backgroundColor: Colors.teal),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -58,12 +57,16 @@ class LoginScreen extends StatelessWidget {
                   _usernameController.text,
                   _passwordController.text,
                 );
-               
+
                 if (user != null) {
-                   _login();
+                  _login();
                 } else {
-                  Get.snackbar('Login Failed', 'Invalid username or password',
-                      backgroundColor: Colors.red, colorText: Colors.white);
+                  Get.snackbar(
+                    'Login Failed',
+                    'Invalid username or password',
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
                 }
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),

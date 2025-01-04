@@ -11,7 +11,7 @@ class DatabaseHelper {
   // Get the database
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('app.db');
+    _database = await _initDB('app1.db');
     return _database!;
   }
 
@@ -22,9 +22,9 @@ Future<Database> _initDB(String fileName) async {
 
   return await openDatabase(
     path,
-    version: 2, // Increment version
+    version: 1, // Increment version
     onCreate: _createDB,
-    onUpgrade: _onUpgrade,
+    // onUpgrade: _onUpgrade,
   );
 }
 
@@ -50,7 +50,6 @@ Future<Database> _initDB(String fileName) async {
       )
     ''');
 
-  
   }
 
   // Get user by username and password
@@ -102,8 +101,48 @@ Future<Database> _initDB(String fileName) async {
       whereArgs: [userId],
     );
   }
-}
+   Future<void> showAllTablesAndRecords() async {
+    final db = await instance.database;
 
+    // Get all table names
+    final tables = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+    );
+
+    for (var table in tables) {
+      final tableName = table['name'];
+      print('\nTable: $tableName');
+
+      // Get all records in the table
+      final records = await db.query(tableName as String);
+      if (records.isNotEmpty) {
+        for (var record in records) {
+          print(record);
+        }
+      } else {
+        print('No records found.');
+      }
+    }
+}
+ Future<void> flushDatabase() async {
+    final db = await instance.database;
+
+    // Get all table names
+    final tables = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+    );
+
+    // Delete all records from each table
+    for (var table in tables) {
+      final tableName = table['name'];
+      if (tableName != null) {
+        print('Flushing table: $tableName');
+        await db.delete(tableName as String);
+      }
+    }
+
+    print('Database flushed successfully.');
+  }
 Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
   if (oldVersion < 2) {
     // Add the passwords table
@@ -117,4 +156,4 @@ Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
       )
     ''');
   }
-}
+}}
