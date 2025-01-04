@@ -1,5 +1,7 @@
+import 'package:aesproject/main.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../controllers/password_controller.dart';
 
 class HomeView extends StatelessWidget {
@@ -9,13 +11,23 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Load from GetStorage, then mirror to file
-    _controller.loadPasswords();
+    // Load passwords after ensuring user ID is available
+    // This is handled in the controller's `onInit` method
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Password Manager'),
         backgroundColor: Colors.teal,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              // Clear Shared Preferences
+               prefs!.remove('userId');
+              Get.offAllNamed('/login');
+            },
+          ),
+        ],
       ),
       body: Obx(() {
         if (_controller.passwords.isEmpty) {
@@ -42,12 +54,24 @@ class HomeView extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 onTap: () => Get.toNamed('/view_password', arguments: passwordItem),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  color: Colors.red,
-                  onPressed: () {
-                    _controller.deletePassword(passwordItem.id);
-                  },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      color: Colors.blue,
+                      onPressed: () {
+                        Get.toNamed('/edit_password', arguments: passwordItem);
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      color: Colors.red,
+                      onPressed: () {
+                        _controller.deletePassword(passwordItem.id!);
+                      },
+                    ),
+                  ],
                 ),
               ),
             );

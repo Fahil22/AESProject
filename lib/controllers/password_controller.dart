@@ -1,81 +1,79 @@
-import 'dart:convert';
+import 'package:aesproject/controllers/database_helper.dart';
+import 'package:aesproject/main.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-
 import '../models/password_model.dart';
 import '../utils/encryption_helper.dart';
-import '../storage/external_storage_handler.dart';
 
 class PasswordController extends GetxController {
-  final GetStorage _storage = GetStorage();
   final EncryptionHelper _encryptionHelper = EncryptionHelper();
-  final ExternalStorageHandler _externalStorageHandler = ExternalStorageHandler();
+  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
-  // Observable list of password objects
   var passwords = <Password>[].obs;
+  int? userId;
 
-  /// Adds a new password, encrypts it, and saves to GetStorage + file
-  void addPassword(String title, String plaintextPassword) {
+  @override
+  void onInit() {
+    super.onInit();
+    _loadUserId();
+  }
+
+  // Load user ID from Shared Preferences
+  void _loadUserId() async {
+    userId = prefs!.getInt('userId');
+    print("${userId}"+"user id");
+    if (userId != null) {
+      loadPasswords();
+    }
+  }
+
+  // Load passwords from the database
+  void loadPasswords() async {
+    if (userId == null) return;
+
+    final passwordMaps = await _dbHelper.getPasswords(userId!);
+    passwords.value = passwordMaps
+        .map((item) => Password.fromJson(item))
+        .toList();
+  }
+
+  // Add a new password
+  void addPassword(String title, String plaintextPassword) async {
+    if (userId == null) return;
+
     final encrypted = _encryptionHelper.encrypt(plaintextPassword);
-
     final password = Password(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: null, // ID will be auto-incremented
+      userId: userId!,
       title: title,
       encryptedPassword: encrypted,
     );
 
+    final id = await _dbHelper.insertPassword(password.toJson());
+    password.id = id;
     passwords.add(password);
-    _saveToBoth();
   }
 
-  /// Deletes a password by id
-  void deletePassword(String id) {
+  // Update an existing password
+  void updatePassword(int id, String newTitle, String newPlaintextPassword) async {
     final index = passwords.indexWhere((p) => p.id == id);
     if (index != -1) {
-      passwords.removeAt(index);
-      _saveToBoth();
+      final encryptedPassword = _encryptionHelper.encrypt(newPlaintextPassword);
+
+      final updatedPassword = Password(
+        id: id,
+        userId: userId!,
+        title: newTitle,
+        encryptedPassword: encryptedPassword,
+      );
+
+      await _dbHelper.updatePassword(updatedPassword.toJson(), id);
+      passwords[index] = updatedPassword;
     }
   }
 
-  /// Reads from GetStorage, populates [passwords], then mirrors to file
-  void loadPasswords() {
-    try {
-      // 1) Load from GetStorage
-      final storedData = _storage.read<List>('passwords') ?? [];
-      passwords.value = storedData
-          .map((item) => Password.fromJson(Map<String, dynamic>.from(item)))
-          .toList();
-
-      // 2) Mirror to external file
-      _saveToFile();
-    } catch (e) {
-      print('Error loading passwords from GetStorage: $e');
-    }
-  }
-
-  /// Save to GetStorage, then also overwrite the file with the same data
-  void _saveToBoth() {
-    try {
-      // 1) Save to GetStorage
-      final jsonList = passwords.map((p) => p.toJson()).toList();
-      _storage.write('passwords', jsonList);
-
-      // 2) Mirror to external file
-      _saveToFile();
-    } catch (e) {
-      print('Error saving passwords: $e');
-    }
-  }
-
-  /// Overwrite the external file with the current [passwords] list
-  void _saveToFile() async {
-    try {
-      final jsonList = passwords.map((p) => p.toJson()).toList();
-      final jsonString = jsonEncode(jsonList);
-
-      await _externalStorageHandler.saveFile('passwords.txt', jsonString);
-    } catch (e) {
-      print('Error writing to external file: $e');
-    }
+  // Delete a password
+  void deletePassword(int id) async {
+    await _dbHelper.deletePassword(id);
+    passwords.removeWhere((p) => p.id == id);
   }
 }

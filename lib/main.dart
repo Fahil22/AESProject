@@ -1,18 +1,21 @@
+import 'package:aesproject/views/EditPasswordView.dart';
+import 'package:aesproject/views/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'views/home_view.dart';
 import 'views/add_password_view.dart';
 import 'views/view_password_view.dart';
-
+SharedPreferences ? prefs;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize GetStorage
   await GetStorage.init();
-
+  prefs = await SharedPreferences.getInstance();
   // Request appropriate storage permissions
   await requestPermissions();
 
@@ -55,11 +58,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/login',
       getPages: [
+        GetPage(name: '/login', page: () => LoginScreen()),
         GetPage(name: '/', page: () => HomeView()),
         GetPage(name: '/add_password', page: () => AddPasswordView()),
         GetPage(name: '/view_password', page: () => ViewPasswordView()),
+        GetPage(name: '/edit_password', page: () => EditPasswordView()),
       ],
     );
   }
