@@ -38,59 +38,6 @@ class EncryptionHelper {
     return _xor(ciphertext, key);
   }
 
-//   String generateTrulyRandomKey(int length) {
-//   const String baseChars = 
-//     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#\$%^&*()-_=+[]{}|;:",.<>?/`~';
-//   final Random secureRandom = Random.secure();
-
-//   // Generate initial entropy
-//   List<int> randomBytes = 
-//     List<int>.generate(length * 2, (i) => secureRandom.nextInt(256));
-
-//   // Convert entropy hash to bit representation
-//   String entropyHash = sha256
-//     .convert(randomBytes)
-//     .bytes
-//     .map((b) => b.toRadixString(2).padLeft(8, '0'))
-//     .join();
-
-//   // Bit-level randomization
-//   List<String> result = [];
-//   int bitIndex = 0;
-
-//   while (result.length < length) {
-//     // Rotate and mix bits
-//     String rotatedBits = entropyHash.substring(bitIndex) + 
-//                          entropyHash.substring(0, bitIndex);
-    
-//     // XOR with random bit stream
-//     String mixedBits = rotatedBits.split('').map((bit) {
-//       int randomBit = secureRandom.nextInt(2);
-//       return (int.parse(bit) ^ randomBit).toString();
-//     }).join();
-
-//     // Select characters based on bit patterns
-//     for (int i = 0; i + 6 < mixedBits.length && result.length < length; i += 6) {
-//       // Take 6-bit chunks to map to base characters
-//       String bitChunk = mixedBits.substring(i, i + 6);
-//       int index = int.parse(bitChunk, radix: 2) % baseChars.length;
-//       result.add(baseChars[index]);
-//     }
-
-//     // Regenerate entropy hash if we run out of bits
-//     bitIndex = (bitIndex + 32) % entropyHash.length;
-//     if (bitIndex == 0) {
-//       randomBytes = List<int>.generate(length * 2, (i) => secureRandom.nextInt(256));
-//       entropyHash = sha256
-//         .convert(randomBytes)
-//         .bytes
-//         .map((b) => b.toRadixString(2).padLeft(8, '0'))
-//         .join();
-//     }
-//   }
-//   print("The key result"+result.join());
-//   return result.join();
-// }
 
 String generateUniqueKey(int length) {
   const String baseChars = 

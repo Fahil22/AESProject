@@ -34,6 +34,7 @@ class HomeView extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                 
                   GestureDetector(
                     onTap: () async {
                       prefs!.remove('userId');
@@ -41,7 +42,7 @@ class HomeView extends StatelessWidget {
                     },
                     child: Icon(
                       Icons.logout,
-                      color: Colors.white70,
+                      color: Colors.white,
                     ),
                   ),
                 ],
