@@ -11,7 +11,7 @@ class DatabaseHelper {
   // Get the database
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('app1.db');
+    _database = await _initDB('app2.db');
     return _database!;
   }
 
@@ -49,6 +49,8 @@ Future<Database> _initDB(String fileName) async {
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
       )
     ''');
+await db.insert('users', {'username': 'Mohammad22', 'password': '123456'});
+await db.insert('users', {'username': 'bakr22', 'password': '123456'});
 
   }
 
