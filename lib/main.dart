@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/login',
+      initialRoute: prefs!.getInt('userId') == null ? '/login' : '/',
       getPages: [
         GetPage(name: '/login', page: () => LoginScreen()),
         GetPage(name: '/', page: () => HomeView()),

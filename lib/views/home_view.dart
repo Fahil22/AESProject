@@ -37,7 +37,7 @@ class HomeView extends StatelessWidget {
                  
                   GestureDetector(
                     onTap: () async {
-                      prefs!.remove('userId');
+                      prefs!.clear();
                       Get.offAllNamed('/login');
                     },
                     child: Icon(

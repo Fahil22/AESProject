@@ -86,30 +86,58 @@ class AddPasswordView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  ElevatedButton(
-                    onPressed: () {
-                      _controller.addPassword(
-                        _titleController.text,
-                        _passwordController.text,
-                      );
-                      Get.back();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.2),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child:  Text(
-                      'Save Password',
-                      style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                    ),
-                  ),
+                 ElevatedButton(
+  onPressed: () {
+    // Validate password length
+    if (_passwordController.text.length > 64) {
+      Get.snackbar(
+        'Error', 
+        'Password cannot exceed 64 characters',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM, // Optional: ensures consistent snackbar position
+      );
+      return;
+    }
+
+    // Ensure title and password are not empty
+    if (_titleController.text.isEmpty || _passwordController.text.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Both Title and Password are required',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    // Add password
+    _controller.addPassword(
+      _titleController.text.trim(), // Trim extra spaces
+      _passwordController.text,
+    );
+
+    // Close the dialog or screen
+    Get.back();
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.white.withOpacity(0.2), // Semi-transparent button
+    padding: const EdgeInsets.symmetric(vertical: 16),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12), // Rounded corners
+    ),
+  ),
+  child: Text(
+    'Save Password',
+    style: GoogleFonts.poppins(
+      color: Colors.white,
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
                 ],
               ),
             ),
